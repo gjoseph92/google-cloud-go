@@ -36,7 +36,7 @@ func setFromProtoValue(x interface{}, vproto *pb.Value, c *Client) error {
 // v must be a settable value.
 func setReflectFromProtoValue(v reflect.Value, vproto *pb.Value, c *Client) error {
 	typeErr := func() error {
-		return fmt.Errorf("firestore: cannot set type %s to %s", v.Type(), typeString(vproto))
+		return fmt.Errorf("firestore: cannot set kind %v, type %s to %s", v.Kind(), v.Type(), typeString(vproto))
 	}
 
 	val := vproto.ValueType
@@ -225,6 +225,7 @@ func setReflectFromProtoValue(v reflect.Value, vproto *pb.Value, c *Client) erro
 	case reflect.Struct:
 		x, ok := val.(*pb.Value_MapValue)
 		if !ok {
+			fmt.Printf("couldn't coerce val to MapValue (%v -> %v)\n", val, pb.Value_MapValue)
 			return typeErr()
 		}
 		return populateStruct(v, x.MapValue.Fields, c)
@@ -243,6 +244,7 @@ func setReflectFromProtoValue(v reflect.Value, vproto *pb.Value, c *Client) erro
 			v.Set(reflect.ValueOf(x))
 			return nil
 		}
+		fmt.Printf("Can't set non-empty interface with %v methods\n", v.NumMethod())
 		// Any other kind of interface is an error.
 		fallthrough
 
