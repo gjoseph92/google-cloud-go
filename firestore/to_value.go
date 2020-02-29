@@ -120,10 +120,11 @@ func toProtoValue(v reflect.Value) (pbv *pb.Value, sawTransform bool, err error)
 		if v.NumMethod() == 0 { // empty interface: recurse on its contents
 			return toProtoValue(v.Elem())
 		}
+		fmt.Printf("Can't handle non-empty Interface with %v methods\n", v.NumMethod())
 		fallthrough // any other interface value is an error
 
 	default:
-		return nil, false, fmt.Errorf("firestore: cannot convert type %s to value", v.Type())
+		return nil, false, fmt.Errorf("firestore: cannot convert kind %v, type %s to value", v.Kind(), v.Type())
 	}
 }
 
